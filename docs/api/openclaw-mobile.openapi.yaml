@@ -1,0 +1,178 @@
+openapi: 3.0.3
+info:
+  title: OpenClaw Mobile API (M1)
+  version: 0.1.0
+servers:
+  - url: http://localhost:8787
+paths:
+  /health:
+    get:
+      summary: Health
+      responses:
+        '200':
+          description: ok
+  /node.get:
+    get:
+      summary: Get node
+      parameters:
+        - in: query
+          name: nodeId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: ok }
+        '400': { description: invalid_request }
+        '404': { description: not_found }
+  /node.stats:
+    get:
+      summary: Node stats
+      parameters:
+        - in: query
+          name: nodeId
+          required: true
+          schema: { type: string }
+        - in: query
+          name: preset
+          required: false
+          schema:
+            type: string
+            enum: [5m, 1h, 24h, 7d]
+      responses:
+        '200': { description: ok }
+        '400': { description: invalid_request }
+        '404': { description: not_found }
+  /run.list:
+    get:
+      summary: List runs
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            enum: [queued, running, paused, stopped, failed, success]
+        - in: query
+          name: limit
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200': { description: ok }
+  /run.get:
+    get:
+      summary: Get run
+      parameters:
+        - in: query
+          name: runId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: ok }
+        '400': { description: invalid_request }
+        '404': { description: not_found }
+  /logs.query:
+    get:
+      summary: Query logs
+      parameters:
+        - in: query
+          name: runId
+          required: false
+          schema: { type: string }
+        - in: query
+          name: nodeId
+          required: false
+          schema: { type: string }
+        - in: query
+          name: level
+          required: false
+          schema:
+            type: string
+            enum: [debug, info, warn, error]
+        - in: query
+          name: keyword
+          required: false
+          schema: { type: string }
+        - in: query
+          name: limit
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+        - in: query
+          name: offset
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200': { description: ok }
+        '400': { description: invalid_request }
+  /alerts.list:
+    get:
+      summary: List alerts
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            enum: [open, ack, resolved]
+        - in: query
+          name: severity
+          required: false
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - in: query
+          name: limit
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200': { description: ok }
+  /alerts.get:
+    get:
+      summary: Get alert
+      parameters:
+        - in: query
+          name: alertId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: ok }
+        '400': { description: invalid_request }
+        '404': { description: not_found }
+  /alerts.ack:
+    post:
+      summary: Acknowledge alert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [alertId]
+              properties:
+                alertId: { type: string }
+                note: { type: string }
+      responses:
+        '200': { description: ok }
+        '400': { description: invalid_request }
+  /alerts.resolve:
+    post:
+      summary: Resolve alert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [alertId]
+              properties:
+                alertId: { type: string }
+                note: { type: string }
+      responses:
+        '200': { description: ok }
+        '400': { description: invalid_request }

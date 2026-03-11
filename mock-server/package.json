@@ -1,0 +1,9 @@
+{
+  "name": "openclaw-mobile-mock",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "node server.mjs"
+  }
+}
