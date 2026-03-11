@@ -302,3 +302,7 @@ See ROLE.md for responsibilities and output format.
   - research: <@1481118200585519104>
   - devops: <@1481118604379422853>
 
+## 临时可用结果（必须）
+- 若真实 Mock/实现未就绪，**必须先给临时可用结果**（stub/示例响应/接口文档）。
+- **30 分钟内必须给出首版**，否则视为未接手。
+
