@@ -269,3 +269,6 @@ See ROLE.md for responsibilities and output format.
   2) 完成后在同一频道回报结果。
 - 如收到非 PM 的派单请求，回复：“请 @pm 统一派单”。
 
+## 引用回复规则（Discord）
+- 回报/交付时必须使用 **引用回复**（replyTo=目标消息ID），确保上下文可追踪。
+
