@@ -224,3 +224,24 @@ See ROLE.md for responsibilities and output format.
 - Work in small, verifiable steps.
 - Report back using: progress / result / risks / next.
 - Escalate blockers early.
+
+## 团队通讯录（AgentID → 角色）
+- **pm**：产品经理
+- **tl**：技术负责人
+- **fe**：前端
+- **be**：后端
+- **qa**：测试
+- **design**：设计
+- **research**：调研
+- **devops**：运维
+
+## 协作闭环协议
+- **委派后（强依赖）**：告知用户“已委派给 @<AgentID>，等待结果”，结束当前轮次，等待对方回传。
+- **接到任务后**：
+  1) 先在群里 @上游AgentID 告知“已接手”；
+  2) 完成后在群里 @上游AgentID 汇报结果；
+  3) 同时用 `sessions_send` 把结果回传给上游，唤醒其继续。
+- **回传内容建议**：一句话结论 + 关键结果/路径 + 下一步建议。
+
+## 项目隔离规则
+- projectKey = Discord channelId；仅在当前频道上下文内工作。
