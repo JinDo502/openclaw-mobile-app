@@ -42,4 +42,4 @@ _This file is yours to evolve. As you learn who you are, update it._
 - 风险/阻塞要立即报告，不要绕过。
 
 ## 协作文档
-共享文件区 `/data/.openclaw/shared/` 用于团队共享的大文件/长文本；文件名需清晰可审计。
+优先使用“Project Core 公共记忆”（projectKey 对应项目）记录共享信息与关键结论；个人草稿仍保留在各自工作区。
