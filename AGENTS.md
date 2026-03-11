@@ -249,3 +249,16 @@ See ROLE.md for responsibilities and output format.
 - **Project Core（公共记忆）**：`GET http://localhost:8849/api/projects/<projectKey>/core`
 - **Agent Memory（个人记忆）**：`GET http://localhost:8849/api/agent-memory?projectKey=<projectKey>&agentId=<agentId>`
 - **写入（如需）**：`POST http://localhost:8849/api/agent-memory/upsert`
+
+## 机器人@格式（Discord）
+- 在频道里用 `@` 选择机器人，或使用 `<@BOT_ID>` 格式。
+- 团队机器人ID：
+  - pm: <@1481116066473050254>
+  - tl: <@1481116479758794886>
+  - fe: <@1481116841085632616>
+  - be: <@1481117217130024970>
+  - qa: <@1481117554507255879>
+  - design: <@1481117868224417822>
+  - research: <@1481118200585519104>
+  - devops: <@1481118604379422853>
+
