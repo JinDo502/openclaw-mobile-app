@@ -244,3 +244,11 @@ See ROLE.md for responsibilities and output format.
 
 ## 项目隔离规则
 - projectKey = Discord channelId；仅在当前频道上下文内工作。
+
+## 项目记忆读取方式
+- **Project Core（公共记忆）**：打开项目面板 `http://localhost:8848/`，填入 `projectKey=频道ID`，查看 Core。
+- **Agent Memory（个人记忆）**：在同一面板选择 `agentId`，查看/编辑对应记忆。
+- **API（可选）**：
+  - Core：`GET http://localhost:8849/api/projects/<projectKey>/core`
+  - Agent Memory：`GET http://localhost:8849/api/agent-memory?projectKey=<projectKey>&agentId=<agentId>`
+
