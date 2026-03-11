@@ -273,3 +273,7 @@ See ROLE.md for responsibilities and output format.
 ## 引用回复规则（Discord）
 - 回报/交付时必须使用 **引用回复**（replyTo=目标消息ID），确保上下文可追踪。
 
+## 回报格式补充（必须）
+- 回报时 **必须引用回复** @pm 的派单消息（replyTo=派单消息ID）。
+- 回报正文 **必须 @pm**，确保提醒到位。
+
