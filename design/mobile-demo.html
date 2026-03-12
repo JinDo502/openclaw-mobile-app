@@ -290,20 +290,21 @@
       </div>
 
       <div class="chipbar" id="flowChips">
-        <div class="chip" data-flow="incident" data-active="true">故障响应</div>
-        <div class="chip" data-flow="task" data-active="false">任务发起</div>
-        <div class="chip" data-flow="chat" data-active="false">会话指令</div>
-        <div class="chip" data-flow="notify" data-active="false">通知跳转</div>
+        <div class="chip" data-flow="incident" data-active="true">通知/故障</div>
+        <div class="chip" data-flow="task" data-active="false">节点/任务</div>
+        <div class="chip" data-flow="logs" data-active="false">日志</div>
+        <div class="chip" data-flow="alerts" data-active="false">告警</div>
       </div>
 
       <div class="note">
         组件规范（简版）：
         <ul>
           <li><span class="mono">TopBar</span>：标题 + 右侧动作（+）</li>
-          <li><span class="mono">TabBar</span>：设备/任务/会话/通知/我的（本 demo 仅视觉）</li>
+          <li><span class="mono">TabBar</span>：节点/任务/日志/告警/我的（结构固定）</li>
           <li><span class="mono">ListItem</span>：主标题 + 次级信息 + 右侧 Badge</li>
           <li><span class="mono">BottomActionBar</span>：处置按钮（需要 SafeArea）</li>
           <li><span class="mono">LogsPreview</span>：固定高度（折叠 N=3）+ 展开后滚动</li>
+          <li><span class="mono">FilterBar</span>：level/keyword + 分页（P0）</li>
         </ul>
       </div>
 
@@ -408,33 +409,109 @@
           </div>
         </div>
 
-        <!-- NOTIFY FLOW -->
-        <div data-page="notify_push" data-show="false">
-          <div class="section-title">推送（示例）</div>
-          <div class="list">
-            <div class="row" onclick="nav('notify_run_detail')"><div class="left"><div class="primary">[告警] 任务 #1822 失败</div><div class="secondary">点击进入详情</div></div><div class="badge warn">P0</div></div>
-            <div class="row" onclick="nav('incident_node_detail')"><div class="left"><div class="primary">[告警] 节点 B 离线</div><div class="secondary">点击进入节点</div></div><div class="badge danger">P0</div></div>
+        <!-- RUN DETAIL (used by Runs tab too) -->
+        <div data-page="notify_run_detail" data-show="false">
+          <div class="section-title">任务详情（run.get）</div>
+          <div class="card">
+            <div class="list">
+              <div class="row"><div class="left"><div class="primary">状态</div><div class="secondary">status</div></div><div class="badge warn">failed</div></div>
+              <div class="row"><div class="left"><div class="primary">失败原因</div><div class="secondary">failReason</div></div><div class="badge">Timeout</div></div>
+              <div class="row"><div class="left"><div class="primary">关联节点</div><div class="secondary">related.nodeId</div></div><div class="badge">n1</div></div>
+            </div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <div class="section-title">Steps（steps[]）</div>
+            <div class="list">
+              <div class="row"><div class="left"><div class="primary">step: connect</div><div class="secondary">ok · 120ms</div></div><div class="badge ok">ok</div></div>
+              <div class="row"><div class="left"><div class="primary">step: restart</div><div class="secondary">failed · 2.1s</div></div><div class="badge warn">fail</div></div>
+            </div>
           </div>
         </div>
 
-        <div data-page="notify_run_detail" data-show="false">
-          <div class="section-title">任务详情（#1822）</div>
+        <!-- LOGS PAGE (logs.query) -->
+        <div data-page="logs_page" data-show="false">
+          <div class="section-title">日志（logs.query）</div>
+          <div class="card">
+            <div class="section-title">筛选（P0）</div>
+            <div class="list">
+              <div class="row">
+                <div class="left">
+                  <div class="primary">Level</div>
+                  <div class="secondary">ALL / ERROR / WARN / INFO</div>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+                  <span class="badge" onclick="setLogsLevel('ALL')">ALL</span>
+                  <span class="badge" onclick="setLogsLevel('ERROR')">ERROR</span>
+                  <span class="badge" onclick="setLogsLevel('WARN')">WARN</span>
+                  <span class="badge" onclick="setLogsLevel('INFO')">INFO</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="left">
+                  <div class="primary">Keyword</div>
+                  <div class="secondary">keyword</div>
+                </div>
+                <input id="kw" placeholder="输入关键字" style="flex:1;min-width:140px;padding:10px;border-radius:12px;border:1px solid rgba(148,163,184,.18);background:rgba(2,6,23,.15);color:rgba(229,231,235,.9)" />
+                <button class="btn" onclick="applyKeyword()">应用</button>
+              </div>
+            </div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <div class="section-title">结果（分页：limit/offset）</div>
+            <div class="list" id="logsResults"></div>
+            <div style="height:10px"></div>
+            <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+              <button class="btn" onclick="prevLogs()">上一页</button>
+              <div class="mono" id="logsPageInfo">offset=0</div>
+              <button class="btn" onclick="nextLogs()">下一页</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALERTS (alerts.list/get + ack/resolve) -->
+        <div data-page="alerts_list" data-show="false">
+          <div class="section-title">告警（alerts.list）</div>
+          <div class="list">
+            <div class="row" onclick="nav('alerts_detail')">
+              <div class="left"><div class="primary">alert a1 · 节点 B 离线</div><div class="secondary">severity=critical · status=open</div></div>
+              <div class="badge danger">open</div>
+            </div>
+            <div class="row" onclick="nav('alerts_detail')">
+              <div class="left"><div class="primary">alert a2 · 任务 r1 失败</div><div class="secondary">severity=warning · status=open</div></div>
+              <div class="badge warn">open</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-page="alerts_detail" data-show="false">
+          <div class="section-title">告警详情（alerts.get）</div>
           <div class="card">
             <div class="list">
-              <div class="row"><div class="left"><div class="primary">状态</div><div class="secondary">status</div></div><div class="badge warn">失败</div></div>
-              <div class="row"><div class="left"><div class="primary">失败原因</div><div class="secondary">failReason</div></div><div class="badge">Timeout</div></div>
-              <div class="row"><div class="left"><div class="primary">关联节点</div><div class="secondary">nodeId</div></div><div class="badge">B</div></div>
+              <div class="row"><div class="left"><div class="primary">alertId</div><div class="secondary">alertId</div></div><div class="badge">a1</div></div>
+              <div class="row"><div class="left"><div class="primary">status</div><div class="secondary">open/ack/resolved</div></div><div class="badge" id="alertStatus">open</div></div>
+              <div class="row"><div class="left"><div class="primary">related</div><div class="secondary">nodeId/runId</div></div><div class="badge">node:b</div></div>
             </div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <div class="section-title">处置（POST alerts.ack/resolve）</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" onclick="ackAlert()">Ack</button>
+              <button class="btn primary" onclick="resolveAlert()">Resolve</button>
+            </div>
+            <div class="note">状态回流：点击后立刻更新 status（前端乐观更新，后端幂等）。</div>
           </div>
         </div>
       </div>
 
       <div class="bottombar">
         <div class="tabbar" id="tabbar">
-          <div class="tab" data-tab="devices" onclick="flowTo('task')">设备</div>
-          <div class="tab" data-tab="tasks" onclick="flowTo('task')">任务</div>
-          <div class="tab" data-tab="chat" onclick="flowTo('chat')">会话</div>
-          <div class="tab" data-tab="notify" onclick="flowTo('incident')" data-active="true">通知</div>
+          <div class="tab" data-tab="nodes" onclick="tabTo('nodes')" data-active="true">节点</div>
+          <div class="tab" data-tab="runs" onclick="tabTo('runs')">任务</div>
+          <div class="tab" data-tab="logs" onclick="tabTo('logs')">日志</div>
+          <div class="tab" data-tab="alerts" onclick="tabTo('alerts')">告警</div>
           <div class="tab" data-tab="me" onclick="toast('占位：我的')">我的</div>
         </div>
       </div>
@@ -447,7 +524,12 @@
 
   let history = ['incident_notifications'];
   let currentFlow = 'incident';
+  let currentTab = 'nodes';
   let logsExpanded = false;
+  let logsPageOffset = 0;
+  let logsLevel = 'ALL';
+  let logsKeyword = '';
+  let alertsState = { a1: 'open', a2: 'open' };
 
   const logsFolded = [
     ['[ERROR]', 'ping timeout', '14:02', 'danger'],
@@ -498,17 +580,31 @@
   }
 
   function flowTo(flow) {
-    // Chip toggle visual
     chips.forEach(c => c.dataset.active = (c.dataset.flow === flow) ? 'true' : 'false');
     currentFlow = flow;
 
-    // Reset history per flow
     const start = {
       incident: 'incident_notifications',
       task: 'task_nodes',
-      chat: 'chat_list',
-      notify: 'notify_push',
+      logs: 'logs_page',
+      alerts: 'alerts_list',
     }[flow];
+
+    history = [start];
+    route(start);
+  }
+
+  function tabTo(tab) {
+    // Bottom tab is the stable IA for FE implementation.
+    document.querySelectorAll('#tabbar .tab').forEach(t => t.dataset.active = (t.dataset.tab === tab) ? 'true' : 'false');
+    currentTab = tab;
+
+    const start = {
+      nodes: 'task_nodes',
+      runs: 'notify_run_detail',
+      logs: 'logs_page',
+      alerts: 'alerts_list',
+    }[tab];
 
     history = [start];
     route(start);
@@ -538,6 +634,75 @@
     renderLogs();
   }
 
+  function setLogsLevel(lvl) {
+    logsLevel = lvl;
+    logsPageOffset = 0;
+    renderLogsQuery();
+    toast(`level=${lvl}`);
+  }
+
+  function applyKeyword() {
+    const v = document.getElementById('kw').value || '';
+    logsKeyword = v.trim();
+    logsPageOffset = 0;
+    renderLogsQuery();
+    toast(`keyword=${logsKeyword || '∅'}`);
+  }
+
+  function prevLogs() {
+    logsPageOffset = Math.max(0, logsPageOffset - 10);
+    renderLogsQuery();
+  }
+
+  function nextLogs() {
+    logsPageOffset = logsPageOffset + 10;
+    renderLogsQuery();
+  }
+
+  function renderLogsQuery() {
+    const results = document.getElementById('logsResults');
+    const info = document.getElementById('logsPageInfo');
+    if (!results || !info) return;
+
+    info.textContent = `offset=${logsPageOffset} · level=${logsLevel} · keyword=${logsKeyword || '∅'}`;
+
+    const make = (level, msg) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      const kind = level === 'ERROR' ? 'danger' : (level === 'WARN' ? 'warn' : '');
+      row.innerHTML = `
+        <div class="left">
+          <div class="primary">[${level}] ${msg}</div>
+          <div class="secondary">ts · source · run:r1</div>
+        </div>
+        <div class="badge ${kind}">#${logsPageOffset}</div>
+      `;
+      return row;
+    };
+
+    results.innerHTML = '';
+    const base = logsLevel === 'ALL' ? ['ERROR','WARN','INFO'] : [logsLevel];
+    for (let i=0;i<5;i++) {
+      const lvl = base[i % base.length];
+      const msg = logsKeyword ? `match: ${logsKeyword}` : 'sample log message';
+      results.appendChild(make(lvl, msg));
+    }
+  }
+
+  function ackAlert() {
+    alertsState.a1 = 'ack';
+    const el = document.getElementById('alertStatus');
+    if (el) el.textContent = 'ack';
+    toast('POST /alerts.ack → ack');
+  }
+
+  function resolveAlert() {
+    alertsState.a1 = 'resolved';
+    const el = document.getElementById('alertStatus');
+    if (el) el.textContent = 'resolved';
+    toast('POST /alerts.resolve → resolved');
+  }
+
   function toast(text) {
     const t = document.createElement('div');
     t.textContent = text;
@@ -562,6 +727,8 @@
 
   // default
   flowTo('incident');
+  tabTo('nodes');
+  renderLogsQuery();
 </script>
 </body>
 </html>
