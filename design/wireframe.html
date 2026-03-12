@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenClaw 管理 App 低保真主流程</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#fff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --primary:#2563eb;
+      --danger:#ef4444;
+      --success:#10b981;
+      --warning:#f59e0b;
+    }
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Noto Sans CJK SC",sans-serif;}
+    body{margin:0;background:var(--bg);color:var(--text);}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:10;}
+    header h1{font-size:16px;margin:0;flex:1;}
+    header .btn{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;}
+    .container{max-width:1100px;margin:20px auto;padding:0 16px;}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+    .tab{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:12px;cursor:pointer;}
+    .tab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .list{display:flex;flex-direction:column;gap:8px;}
+    .item{border:1px dashed var(--border);border-radius:10px;padding:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+    .badge{font-size:11px;padding:2px 6px;border-radius:999px;background:#eef2ff;color:#4338ca;}
+    .status{font-size:11px;padding:2px 6px;border-radius:999px;}
+    .online{background:#ecfdf5;color:#047857;}
+    .offline{background:#fef2f2;color:#b91c1c;}
+    .warn{background:#fffbeb;color:#b45309;}
+    .footerbar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;justify-content:space-between;align-items:center;}
+    .footerbar .btn{border:1px solid var(--border);background:#fff;padding:8px 10px;border-radius:8px;font-size:12px;cursor:pointer;}
+    .btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .btn.danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+    .section{display:none;}
+    .section.active{display:block;}
+    .phone{border:1px solid var(--border);border-radius:16px;background:#fff;overflow:hidden;}
+    .phone .screen{padding:12px;min-height:520px;background:#fafafa;}
+    .phone .nav{border-top:1px solid var(--border);padding:10px;display:flex;justify-content:space-around;font-size:11px;color:var(--muted);}
+    .safearea-note{font-size:11px;color:var(--muted);margin-top:6px;}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    @media (max-width:900px){
+      .split{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>OpenClaw 管理 App｜低保真主流程（可交互 Tab 切换）</h1>
+  <button class="btn" onclick="alert('占位：新建任务/发送指令')">+ 新建</button>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" data-target="flow-incident">故障响应</div>
+    <div class="tab" data-target="flow-task">任务发起</div>
+    <div class="tab" data-target="flow-chat">会话指令</div>
+    <div class="tab" data-target="flow-notify">通知跳转</div>
+  </div>
+
+  <section id="flow-incident" class="section active">
+    <div class="split">
+      <div class="phone">
+        <div class="screen">
+          <h3>通知中心</h3>
+          <div class="list">
+            <div class="item"><span>节点 B 离线</span><span class="status offline">严重</span></div>
+            <div class="item"><span>任务 #1822 失败</span><span class="status warn">警告</span></div>
+          </div>
+        </div>
+        <div class="nav">
+          <span>设备</span><span>任务</span><span>会话</span><strong>通知</strong><span>我的</span>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <h3>节点详情（节点 B）</h3>
+          <div class="item"><span>状态</span><span class="status offline">离线</span></div>
+          <div class="item"><span>上次心跳</span><span>2h</span></div>
+          <div class="item"><span>版本</span><span>v1.1</span></div>
+          <h3>日志预览（固定高度 + 可折叠/展开）</h3>
+          <div class="item"><span>[ERROR] ping timeout</span><span>14:02</span></div>
+          <div class="item"><span>[WARN] reconnecting</span><span>14:01</span></div>
+          <div class="item"><span>[INFO] ...</span><span>14:00</span></div>
+          <div class="item"><span>点击展开更多日志</span><span>▼</span></div>
+        </div>
+        <div class="footerbar">
+          <span>处置</span>
+          <div>
+            <button class="btn danger">重启节点</button>
+            <button class="btn primary">重试任务</button>
+          </div>
+        </div>
+        <div class="safearea-note">iOS SafeArea 适配：底部处置栏/输入栏需保留安全区内边距</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow-task" class="section">
+    <div class="split">
+      <div class="phone">
+        <div class="screen">
+          <h3>设备/节点列表</h3>
+          <div class="list">
+            <div class="item"><span>节点 A</span><span class="status online">在线</span></div>
+            <div class="item"><span>节点 B</span><span class="status offline">离线</span></div>
+            <div class="item"><span>节点 C</span><span class="status online">在线</span></div>
+          </div>
+        </div>
+        <div class="nav">
+          <strong>设备</strong><span>任务</span><span>会话</span><span>通知</span><span>我的</span>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <h3>新建任务</h3>
+          <div class="item"><span>模板</span><span class="badge">重启节点</span></div>
+          <div class="item"><span>目标节点</span><span>节点 A / C</span></div>
+          <div class="item"><span>执行方式</span><span>立即</span></div>
+          <div class="item"><span>备注</span><span>—</span></div>
+        </div>
+        <div class="footerbar">
+          <span>校验</span>
+          <div>
+            <button class="btn">取消</button>
+            <button class="btn primary">启动任务</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow-chat" class="section">
+    <div class="split">
+      <div class="phone">
+        <div class="screen">
+          <h3>会话列表</h3>
+          <div class="list">
+            <div class="item"><span>节点 A 会话</span><span>3m</span></div>
+            <div class="item"><span>项目 X 会话</span><span>1h</span></div>
+          </div>
+        </div>
+        <div class="nav">
+          <span>设备</span><span>任务</span><strong>会话</strong><span>通知</span><span>我的</span>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <h3>会话详情</h3>
+          <div class="item"><span>指令：logs.tail</span><span>14:10</span></div>
+          <div class="item"><span>回复：OK（50 行）</span><span>14:11</span></div>
+          <div class="item"><span>指令：node.stats</span><span>14:12</span></div>
+        </div>
+        <div class="footerbar">
+          <input style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px" placeholder="输入指令" />
+          <button class="btn primary">发送</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow-notify" class="section">
+    <div class="split">
+      <div class="phone">
+        <div class="screen">
+          <h3>推送通知</h3>
+          <div class="item"><span>[告警] 任务 #1822 失败</span><span>点击进入</span></div>
+          <div class="item"><span>[告警] 节点 B 离线</span><span>点击进入</span></div>
+        </div>
+        <div class="nav">
+          <span>设备</span><span>任务</span><span>会话</span><strong>通知</strong><span>我的</span>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen">
+          <h3>任务详情（#1822）</h3>
+          <div class="item"><span>状态</span><span class="status warn">失败</span></div>
+          <div class="item"><span>失败原因</span><span>Timeout</span></div>
+          <div class="item"><span>关联节点</span><span>节点 B</span></div>
+          <h3>日志摘要</h3>
+          <div class="item"><span>[WARN] retry...</span><span>14:03</span></div>
+        </div>
+        <div class="footerbar">
+          <span>处置</span>
+          <div>
+            <button class="btn">查看节点</button>
+            <button class="btn primary">重试任务</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('.section');
+  tabs.forEach(t=>t.addEventListener('click',()=>{
+    tabs.forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const id = t.dataset.target;
+    sections.forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }));
+</script>
+</body>
+</html>
