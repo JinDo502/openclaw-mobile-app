@@ -1,10 +1,18 @@
+# Flutter/Dart/Pub
 .dart_tool/
 .packages
 .pub/
 build/
-coverage/
-*.iml
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
 .idea/
 .vscode/
+*.iml
+
+# OS
 .DS_Store
+
+# Env
 .env

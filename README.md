@@ -1,29 +1,21 @@
-# OpenClaw Mobile App (Flutter)
+# openclaw-mobile-app
 
-Flutter-based cross-platform management app for OpenClaw.
+Flutter management app (M1/P0).
 
-## Prereqs
-- Flutter (via FVM recommended)
-- Mock Server (from backend repo/workdir)
+## Quick start (local)
 
-## Quick start
-1) Start mock server:
+Prereqs: Flutter SDK installed.
+
 ```bash
-cd mock-server
-npm run dev
-# BaseURL http://localhost:8787
-```
-
-2) Run app:
-```bash
-# Option A: dart-define
+cd app
+flutter pub get
 flutter run --dart-define API_BASE_URL=http://localhost:8787
-
-# Option B: edit .env (if you wire dotenv)
 ```
 
-## API base URL
-The app expects an API base URL configured via `--dart-define API_BASE_URL=...`.
+## Config
 
-## Status
-Scaffold only (repo bootstrap).
+- `API_BASE_URL`: backend/mock base url.
+
+## CI
+
+GitHub Actions runs lint/test/build.
