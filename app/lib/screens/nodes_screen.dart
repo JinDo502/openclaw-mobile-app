@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api/client.dart';
 import '../api/models.dart';
+import 'node_detail_screen.dart';
 
 class NodesScreen extends StatefulWidget {
   const NodesScreen({super.key, required this.api});
@@ -54,6 +55,13 @@ class _NodesScreenState extends State<NodesScreen> {
                 title: Text(node.name),
                 subtitle: Text('v${node.version} · heartbeat ${node.lastHeartbeatAt}'),
                 trailing: _StatusChip(status: node.status),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => NodeDetailScreen(api: widget.api, node: node),
+                    ),
+                  );
+                },
               ),
             ],
           ),

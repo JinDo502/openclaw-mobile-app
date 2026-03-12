@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api/client.dart';
 import '../api/models.dart';
+import 'run_detail_screen.dart';
 
 class RunsScreen extends StatefulWidget {
   const RunsScreen({super.key, required this.api});
@@ -55,6 +56,13 @@ class _RunsScreenState extends State<RunsScreen> {
               title: Text(run.name),
               subtitle: Text('${run.status}${run.failReason != null ? ' · ${run.failReason}' : ''}'),
               trailing: Text(run.runId),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => RunDetailScreen(api: widget.api, runId: run.runId),
+                  ),
+                );
+              },
             );
           },
         );
