@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenClaw Mobile App Demo (HTML)</title>
+  <style>
+    /*
+      OpenClaw Mobile Demo — neutral ops-tool visual
+      - Tokens live in :root
+      - Components: TopBar, TabBar, ListItem, Badge, Button, BottomActionBar
+      - Pages (flows): Incident, TaskCreate, Chat, NotificationJump
+    */
+
+    :root {
+      /* Colors */
+      --oc-bg: #0b1220;
+      --oc-surface: #0f172a;
+      --oc-surface-2: #111c33;
+      --oc-card: #111a2f;
+      --oc-border: rgba(148, 163, 184, 0.16);
+      --oc-text: #e5e7eb;
+      --oc-text-2: rgba(229, 231, 235, 0.72);
+      --oc-text-3: rgba(229, 231, 235, 0.52);
+
+      --oc-primary: #60a5fa;
+      --oc-primary-2: #3b82f6;
+      --oc-danger: #fb7185;
+      --oc-warning: #fbbf24;
+      --oc-success: #34d399;
+
+      /* Typography */
+      --oc-font: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "PingFang SC", "Noto Sans CJK SC", sans-serif;
+      --oc-title: 16px;
+      --oc-subtitle: 12px;
+      --oc-body: 13px;
+      --oc-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      /* Spacing */
+      --oc-1: 4px;
+      --oc-2: 8px;
+      --oc-3: 12px;
+      --oc-4: 16px;
+      --oc-5: 20px;
+
+      /* Radius */
+      --oc-r1: 10px;
+      --oc-r2: 14px;
+      --oc-r3: 18px;
+
+      /* Shadow */
+      --oc-shadow: 0 10px 30px rgba(0,0,0,.35);
+
+      /* Device */
+      --device-w: 390px; /* iPhone 14-ish */
+      --device-h: 844px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(59,130,246,.18), transparent 60%),
+                  radial-gradient(900px 700px at 80% 20%, rgba(52,211,153,.10), transparent 55%),
+                  var(--oc-bg);
+      color: var(--oc-text);
+      font-family: var(--oc-font);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--oc-border);
+      border-radius: var(--oc-r3);
+      padding: 14px;
+      box-shadow: var(--oc-shadow);
+    }
+
+    .panel h1 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: .2px;
+      color: var(--oc-text);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--oc-text-2);
+      line-height: 1.45;
+    }
+
+    .chipbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      border: 1px solid var(--oc-border);
+      background: rgba(17, 26, 47, 0.7);
+      color: var(--oc-text);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip[data-active="true"] {
+      border-color: rgba(96, 165, 250, 0.55);
+      background: rgba(59, 130, 246, 0.22);
+      color: #eaf2ff;
+    }
+
+    /* Device */
+    .device {
+      width: var(--device-w);
+      height: var(--device-h);
+      border-radius: 34px;
+      border: 1px solid rgba(148,163,184,.24);
+      background: linear-gradient(180deg, rgba(17, 26, 47, 0.86), rgba(15, 23, 42, 0.92));
+      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+      overflow: hidden;
+      position: sticky;
+      top: 16px;
+    }
+
+    .topbar {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--oc-border);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar .title {
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: .2px;
+      flex: 1;
+    }
+
+    .iconbtn {
+      border: 1px solid var(--oc-border);
+      background: rgba(17, 26, 47, 0.85);
+      color: var(--oc-text);
+      border-radius: 12px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .content {
+      padding: 14px;
+      height: calc(var(--device-h) - 62px - 74px);
+      overflow: auto;
+    }
+
+    .section-title {
+      font-size: 12px;
+      color: var(--oc-text-2);
+      margin: 8px 2px;
+      letter-spacing: .3px;
+    }
+
+    .card {
+      background: rgba(17, 26, 47, 0.72);
+      border: 1px solid var(--oc-border);
+      border-radius: var(--oc-r2);
+      padding: 12px;
+    }
+
+    .list { display: grid; gap: 10px; }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid rgba(148,163,184,.14);
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .row .left { display: grid; gap: 2px; }
+    .row .primary { font-size: 13px; }
+    .row .secondary { font-size: 12px; color: var(--oc-text-3); }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,.18);
+      color: var(--oc-text-2);
+      background: rgba(2,6,23,.25);
+      white-space: nowrap;
+    }
+    .badge.danger { border-color: rgba(251,113,133,.38); color: rgba(255,226,230,.95); background: rgba(251,113,133,.12); }
+    .badge.warn { border-color: rgba(251,191,36,.35); color: rgba(255,244,205,.95); background: rgba(251,191,36,.11); }
+    .badge.ok { border-color: rgba(52,211,153,.30); color: rgba(223,255,244,.95); background: rgba(52,211,153,.10); }
+
+    .btn {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,.18);
+      background: rgba(17, 26, 47, 0.8);
+      color: var(--oc-text);
+      cursor: pointer;
+      user-select: none;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .btn.primary { background: rgba(59,130,246,.22); border-color: rgba(96,165,250,.46); }
+    .btn.danger { background: rgba(251,113,133,.18); border-color: rgba(251,113,133,.45); }
+
+    .bottombar {
+      border-top: 1px solid var(--oc-border);
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 10px 12px;
+      padding-bottom: calc(10px + var(--safe-bottom));
+    }
+
+    .tabbar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .tab {
+      border: 1px solid rgba(148,163,184,.12);
+      border-radius: 16px;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--oc-text-3);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tab[data-active="true"] {
+      color: rgba(234,242,255,.95);
+      border-color: rgba(96,165,250,.46);
+      background: rgba(59,130,246,.14);
+    }
+
+    .note {
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--oc-text-2);
+    }
+
+    .mono { font-family: var(--oc-mono); font-size: 12px; color: rgba(229,231,235,.78); }
+
+    /* Page routing */
+    [data-page] { display: none; }
+    [data-page][data-show="true"] { display: block; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1>交互 HTML Demo（移动端 App 形态）</h1>
+      <div class="hint">
+        - 风格：中性运维工具（暗色 + 状态色清晰）<br/>
+        - 目标：给 FE/QA 对齐信息层级、组件形态、关键交互（不追求视觉精修）<br/>
+        - 说明：底部条默认已做 SafeArea padding；日志预览默认折叠，点击可“展开/收起”。
+      </div>
+
+      <div class="chipbar" id="flowChips">
+        <div class="chip" data-flow="incident" data-active="true">故障响应</div>
+        <div class="chip" data-flow="task" data-active="false">任务发起</div>
+        <div class="chip" data-flow="chat" data-active="false">会话指令</div>
+        <div class="chip" data-flow="notify" data-active="false">通知跳转</div>
+      </div>
+
+      <div class="note">
+        组件规范（简版）：
+        <ul>
+          <li><span class="mono">TopBar</span>：标题 + 右侧动作（+）</li>
+          <li><span class="mono">TabBar</span>：设备/任务/会话/通知/我的（本 demo 仅视觉）</li>
+          <li><span class="mono">ListItem</span>：主标题 + 次级信息 + 右侧 Badge</li>
+          <li><span class="mono">BottomActionBar</span>：处置按钮（需要 SafeArea）</li>
+          <li><span class="mono">LogsPreview</span>：固定高度（折叠 N=3）+ 展开后滚动</li>
+        </ul>
+      </div>
+
+      <div class="note">
+        提交路径建议：<span class="mono">design/mobile-demo.html</span>（可独立打开预览）。
+      </div>
+    </div>
+
+    <div class="device" id="device">
+      <div class="topbar">
+        <div class="iconbtn" onclick="goBack()" title="Back">←</div>
+        <div class="title" id="topTitle">通知中心</div>
+        <div class="iconbtn" onclick="toast('占位：新建任务/发送指令')" title="New">＋</div>
+      </div>
+
+      <div class="content">
+        <!-- INCIDENT FLOW -->
+        <div data-page="incident_notifications" data-show="true">
+          <div class="section-title">通知（示例）</div>
+          <div class="list">
+            <div class="row" onclick="nav('incident_node_detail')">
+              <div class="left">
+                <div class="primary">节点 B 离线</div>
+                <div class="secondary">2 分钟前 · node:b</div>
+              </div>
+              <div class="badge danger">严重</div>
+            </div>
+            <div class="row" onclick="nav('notify_run_detail')">
+              <div class="left">
+                <div class="primary">任务 #1822 失败</div>
+                <div class="secondary">10 分钟前 · run:r1822</div>
+              </div>
+              <div class="badge warn">警告</div>
+            </div>
+          </div>
+        </div>
+
+        <div data-page="incident_node_detail" data-show="false">
+          <div class="card">
+            <div class="section-title">节点详情（节点 B）</div>
+            <div class="list">
+              <div class="row"><div class="left"><div class="primary">状态</div><div class="secondary">online/offline</div></div><div class="badge danger">离线</div></div>
+              <div class="row"><div class="left"><div class="primary">上次心跳</div><div class="secondary">lastHeartbeatAt</div></div><div class="badge">2h</div></div>
+              <div class="row"><div class="left"><div class="primary">版本</div><div class="secondary">version</div></div><div class="badge">v1.1</div></div>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="card" id="logsCard">
+            <div class="section-title">日志预览（折叠/展开）</div>
+            <div class="list" id="logsList"></div>
+            <div style="height:8px"></div>
+            <button class="btn" onclick="toggleLogs()" id="logsToggle">展开更多</button>
+          </div>
+
+          <div class="note">iOS SafeArea：底部处置栏/输入栏需要避让安全区（本 demo 已在 bottombar 做 padding）。</div>
+        </div>
+
+        <!-- TASK FLOW -->
+        <div data-page="task_nodes" data-show="false">
+          <div class="section-title">设备/节点</div>
+          <div class="list">
+            <div class="row"><div class="left"><div class="primary">节点 A</div><div class="secondary">18ms · v1.2</div></div><div class="badge ok">在线</div></div>
+            <div class="row"><div class="left"><div class="primary">节点 B</div><div class="secondary">— · v1.1</div></div><div class="badge danger">离线</div></div>
+            <div class="row"><div class="left"><div class="primary">节点 C</div><div class="secondary">22ms · v1.2</div></div><div class="badge ok">在线</div></div>
+          </div>
+          <div style="height:12px"></div>
+          <button class="btn primary" onclick="nav('task_create')">+ 新建任务</button>
+        </div>
+
+        <div data-page="task_create" data-show="false">
+          <div class="section-title">新建任务</div>
+          <div class="card">
+            <div class="list">
+              <div class="row"><div class="left"><div class="primary">模板</div><div class="secondary">template</div></div><div class="badge">重启节点</div></div>
+              <div class="row"><div class="left"><div class="primary">目标节点</div><div class="secondary">nodeIds</div></div><div class="badge">A / C</div></div>
+              <div class="row"><div class="left"><div class="primary">执行方式</div><div class="secondary">schedule</div></div><div class="badge">立即</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAT FLOW -->
+        <div data-page="chat_list" data-show="false">
+          <div class="section-title">会话</div>
+          <div class="list">
+            <div class="row" onclick="nav('chat_detail')"><div class="left"><div class="primary">节点 A 会话</div><div class="secondary">3m 前</div></div><div class="badge">A</div></div>
+            <div class="row" onclick="nav('chat_detail')"><div class="left"><div class="primary">项目 X 会话</div><div class="secondary">1h 前</div></div><div class="badge">X</div></div>
+          </div>
+        </div>
+
+        <div data-page="chat_detail" data-show="false">
+          <div class="section-title">会话详情</div>
+          <div class="list">
+            <div class="row"><div class="left"><div class="primary">指令：logs.tail</div><div class="secondary">14:10</div></div><div class="badge">cmd</div></div>
+            <div class="row"><div class="left"><div class="primary">回复：OK（50 行）</div><div class="secondary">14:11</div></div><div class="badge ok">ok</div></div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="card">
+            <div class="section-title">输入（占位）</div>
+            <div class="mono">Bottom input bar in Flutter: BottomAppBar + TextField + Send</div>
+          </div>
+        </div>
+
+        <!-- NOTIFY FLOW -->
+        <div data-page="notify_push" data-show="false">
+          <div class="section-title">推送（示例）</div>
+          <div class="list">
+            <div class="row" onclick="nav('notify_run_detail')"><div class="left"><div class="primary">[告警] 任务 #1822 失败</div><div class="secondary">点击进入详情</div></div><div class="badge warn">P0</div></div>
+            <div class="row" onclick="nav('incident_node_detail')"><div class="left"><div class="primary">[告警] 节点 B 离线</div><div class="secondary">点击进入节点</div></div><div class="badge danger">P0</div></div>
+          </div>
+        </div>
+
+        <div data-page="notify_run_detail" data-show="false">
+          <div class="section-title">任务详情（#1822）</div>
+          <div class="card">
+            <div class="list">
+              <div class="row"><div class="left"><div class="primary">状态</div><div class="secondary">status</div></div><div class="badge warn">失败</div></div>
+              <div class="row"><div class="left"><div class="primary">失败原因</div><div class="secondary">failReason</div></div><div class="badge">Timeout</div></div>
+              <div class="row"><div class="left"><div class="primary">关联节点</div><div class="secondary">nodeId</div></div><div class="badge">B</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <div class="tabbar" id="tabbar">
+          <div class="tab" data-tab="devices" onclick="flowTo('task')">设备</div>
+          <div class="tab" data-tab="tasks" onclick="flowTo('task')">任务</div>
+          <div class="tab" data-tab="chat" onclick="flowTo('chat')">会话</div>
+          <div class="tab" data-tab="notify" onclick="flowTo('incident')" data-active="true">通知</div>
+          <div class="tab" data-tab="me" onclick="toast('占位：我的')">我的</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const pages = Array.from(document.querySelectorAll('[data-page]'));
+  const chips = Array.from(document.querySelectorAll('#flowChips .chip'));
+
+  let history = ['incident_notifications'];
+  let currentFlow = 'incident';
+  let logsExpanded = false;
+
+  const logsFolded = [
+    ['[ERROR]', 'ping timeout', '14:02', 'danger'],
+    ['[WARN]', 'reconnecting', '14:01', 'warn'],
+    ['[INFO]', 'backoff 1s', '14:00', ''],
+  ];
+  const logsMore = [
+    ['[INFO]', 'retry #2', '13:59', ''],
+    ['[INFO]', 'dns resolved', '13:58', ''],
+    ['[INFO]', 'tcp ok', '13:57', ''],
+  ];
+
+  function setTitle(t) {
+    document.getElementById('topTitle').textContent = t;
+  }
+
+  function show(pageId) {
+    pages.forEach(p => p.dataset.show = (p.dataset.page === pageId) ? 'true' : 'false');
+  }
+
+  function nav(pageId) {
+    history.push(pageId);
+    route(pageId);
+  }
+
+  function goBack() {
+    if (history.length <= 1) return;
+    history.pop();
+    route(history[history.length - 1]);
+  }
+
+  function route(pageId) {
+    show(pageId);
+
+    const titleMap = {
+      incident_notifications: '通知中心',
+      incident_node_detail: '节点详情',
+      task_nodes: '设备/节点',
+      task_create: '新建任务',
+      chat_list: '会话',
+      chat_detail: '会话详情',
+      notify_push: '推送',
+      notify_run_detail: '任务详情',
+    };
+    setTitle(titleMap[pageId] || 'OpenClaw');
+
+    if (pageId === 'incident_node_detail') renderLogs();
+  }
+
+  function flowTo(flow) {
+    // Chip toggle visual
+    chips.forEach(c => c.dataset.active = (c.dataset.flow === flow) ? 'true' : 'false');
+    currentFlow = flow;
+
+    // Reset history per flow
+    const start = {
+      incident: 'incident_notifications',
+      task: 'task_nodes',
+      chat: 'chat_list',
+      notify: 'notify_push',
+    }[flow];
+
+    history = [start];
+    route(start);
+  }
+
+  function renderLogs() {
+    const list = document.getElementById('logsList');
+    list.innerHTML = '';
+    const data = logsExpanded ? logsFolded.concat(logsMore) : logsFolded;
+    data.forEach(([lvl, msg, ts, kind]) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="left">
+          <div class="primary">${lvl} ${msg}</div>
+          <div class="secondary">source · node:b</div>
+        </div>
+        <div class="badge ${kind || ''}">${ts}</div>
+      `;
+      list.appendChild(row);
+    });
+    document.getElementById('logsToggle').textContent = logsExpanded ? '收起' : '展开更多';
+  }
+
+  function toggleLogs() {
+    logsExpanded = !logsExpanded;
+    renderLogs();
+  }
+
+  function toast(text) {
+    const t = document.createElement('div');
+    t.textContent = text;
+    t.style.position = 'fixed';
+    t.style.left = '50%';
+    t.style.bottom = '24px';
+    t.style.transform = 'translateX(-50%)';
+    t.style.background = 'rgba(15,23,42,.95)';
+    t.style.border = '1px solid rgba(148,163,184,.22)';
+    t.style.color = 'rgba(229,231,235,.9)';
+    t.style.padding = '10px 12px';
+    t.style.borderRadius = '14px';
+    t.style.boxShadow = '0 20px 50px rgba(0,0,0,.55)';
+    t.style.fontSize = '12px';
+    t.style.zIndex = '9999';
+    document.body.appendChild(t);
+    setTimeout(()=>{ t.remove(); }, 1200);
+  }
+
+  // Init chips
+  chips.forEach(c => c.addEventListener('click', () => flowTo(c.dataset.flow)));
+
+  // default
+  flowTo('incident');
+</script>
+</body>
+</html>
